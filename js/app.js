@@ -36,3 +36,26 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+ const allCards = document.querySelectorAll('.card');
+ let iconList = [];
+ let cardList = [];
+
+ allCards.forEach(function(card) {
+  card.addEventListener("click", function() {
+    if (iconList.length < 2 && !card.classList.contains('open')) {
+      let classes = card.querySelector('i').classList;
+      let cardName = classes.item(1);
+      //Need to make it so that the actual card itself is saved somewhere so that we can flip both cards back over, not just the most recent one
+      iconList.push(cardName);
+      card.classList.add('show', 'open');
+      console.log(iconList);
+      if (iconList.length === 2 && iconList[0] !== iconList[1]) {
+        setTimeout(function() {card.classList.remove('show', 'open')}, 1000);
+      }
+      if (iconList.length === 2) {
+        iconList = [];
+        console.log(iconList);
+      }
+    }
+  });
+});
