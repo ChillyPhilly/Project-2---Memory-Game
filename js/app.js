@@ -48,14 +48,19 @@ function winCheck() {
  }
 }
 
+//Increment move counter function
+const incrementMoveCounter = () => {
+  moveCounter += 1;
+  document.querySelector('.moves').innerText = moveCounter.toString();
+}
+
 //What to do when a card is clicked
 const listenerFunction = () => {
   let card = event.target;
 
   // Increment move counter
   if (openCards.length < 2) {
-    moveCounter += 1;
-    document.querySelector('.moves').innerText = Math.round(moveCounter.toString());
+    incrementMoveCounter();
   }
 
   //Take stars away when playing badly
@@ -162,6 +167,7 @@ const initialize = () => {
   shuffle(cards);
   generateDeck();
   moveCounter = 0;
+  document.querySelector('.moves').innerText = moveCounter.toString()
 }
 
 //Restart game - remove all cards then re-initialize
@@ -169,6 +175,7 @@ const restart  = () => {
   while (deck.firstChild) {
     deck.removeChild(deck.firstChild);
   };
+
   initialize();
 }
 
