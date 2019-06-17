@@ -1,37 +1,109 @@
 /*
  * Create a list that holds all of your cards
  */
-const cards = [ 'fa-diamond', 'fa-diamond',
-                'fa-paper-plane-o', 'fa-paper-plane-o',
-                'fa-anchor','fa-anchor',
-                'fa-bolt', 'fa-bolt',
-                'fa-cube', 'fa-cube',
-                'fa-leaf', 'fa-leaf',
-                'fa-bicycle', 'fa-bicycle',
-                'fa-bomb', 'fa-bomb',
-];
 
-let cardList = [];
+const cards = [];
+const deck = document.querySelector('.deck');
 let openCards = [];
 let moveCounter = 0;
-const deck = document.querySelector('.deck');
+const cardNames = [ 'fa-diamond',
+               'fa-paper-plane-o',
+               'fa-anchor',
+               'fa-bolt',
+               'fa-cube',
+               'fa-leaf',
+               'fa-bicycle',
+               'fa-bomb',
+];
 
+//FOR TESTING PURPOSES ONLY
+//FOR TESTING PURPOSES ONLY
+const matchAll = () => {
+  for (i = 0; i < deck.children.length; i++) {
+    deck.children[i].classList.add('match');
+  }
+}
+//FOR TESTING PURPOSES ONLY
+//FOR TESTING PURPOSES ONLY
+
+//Create two of each card
+cardNames.forEach( (card) => {
+  cards.push(card);
+  cards.push(card);
+})
+
+
+// Check if a card has "match" class
+let isMatched = (card) => {
+ return card.classList.contains('match');
+}
+
+//Check if won
+function winCheck() {
+  let deckArray = [].slice.call(deck.children);
+  if (deckArray.every(isMatched)) {
+    return true;
+ }
+}
+
+//What to do when a card is clicked
+const listenerFunction = () => {
+  let card = event.target;
+
+  // Increment move counter
+  if (openCards.length < 2) {
+    moveCounter += 0.50;
+  }
+
+  //Flip card
+  console.log(moveCounter);
+  if (openCards.length < 2 && !card.classList.contains('open')) {
+    openCards.push(event.target);
+    card.classList.add('show', 'open');
+  }
+
+  //Check if cards are different, then flip back over after a delay:
+  if (openCards.length === 2 && !openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild)) {
+    setTimeout( () => {openCards.forEach( (child) => {
+      child.classList.remove('show', 'open');
+    });
+    openCards = [];
+  }, 1500);
+  }
+
+  // Otherwise, if cards match, style as "matched" and continue showing icon:
+  else if (openCards.length === 2 && openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild)) {
+    openCards.forEach( (child) => {
+      child.classList.add('match');
+      child.classList.remove('show', 'open');
+    });
+    console.log('Match!');
+      openCards = [];
+  };
+  //Popup message if won
+  if (winCheck() === true) {
+    setTimeout( () => {
+      window.alert(`You won. Mum must be so proud of your mighty ${moveCounter} moves.`);
+    }, 1);
+  }
+};
+
+//Create individual cards and add them to the deck
 const generateCard = (card) => {
- let cardTemplate = `<li class="card"><i class="fa ${card}"></i></li>`;
- return cardTemplate;
+  const newTile = document.createElement(`li`); //Create list
+  const newCard = document.createElement(`i`); //Create list elements
+  newTile.classList.add(`card`);
+  newCard.classList.add(`fa`);
+  newCard.classList.add(`${card}`); //Add classlist for name of card
+  newTile.appendChild(newCard); //Add new card to its tile
+  newTile.addEventListener('click', listenerFunction); //Add event listener to each card as it is created
+  deck.appendChild(newTile); //Add each tile/card to the deck
 }
 
-const init = () => {
-  shuffle(cards);
-  const cardHTML = cards.map(function(card) {
-    return generateCard(card);
-  });
-
-  deck.innerHTML = cardHTML.join('');
-  moveCounter = 0;
+//Generate the deck on screen
+const generateDeck = () => {
+ cards.forEach(generateCard);
 }
-
-init();
 
 /*
 * Display the cards on the page
@@ -67,70 +139,10 @@ function shuffle(array) {
 *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
 */
 
-const restart = document.querySelector('.restart');
-
-let isMatch = (card) => {
- return card.classList.contains('match');
+//Begin game by shuffling cards and generating deck
+const initialize = () => {
+  shuffle(cards);
+  generateDeck();
 }
 
-
-
-onClick = () => {
-  const allCards = document.querySelectorAll('.card');
-  let allCardsArray = [].slice.call(allCards);
-  allCards.forEach( (card) => {
-    card.addEventListener("click", () => {
-      document.getElementsByClassName('moves')[0].innerText = Math.round(moveCounter).toString(); //Control move counter display
-      // Increment move counter
-      if (cardList.length < 2) {
-        moveCounter += 0.50;
-      }
-      //Flip card
-      console.log(moveCounter);
-      if (cardList.length < 2 && !card.classList.contains('open')) {
-        cardList.push(card);
-        card.classList.add('show', 'open');
-      }
-      //Check if cards are different, then flip back over after a delay:
-      if (cardList.length === 2 && !cardList[0].firstElementChild.isEqualNode(cardList[1].firstElementChild)) {
-        setTimeout( () => {cardList.forEach( (child) => {
-          child.classList.remove('show', 'open');
-        });
-        cardList = [];
-      }, 1500);
-      }
-    // Otherwise, if cards match, style as "matched" and continue showing icon:
-      else if (cardList.length === 2 && cardList[0].firstElementChild.isEqualNode(cardList[1].firstElementChild)) {
-        cardList.forEach( (child) => {
-          child.classList.add('match');
-          child.classList.remove('show', 'open');
-        });
-        console.log('Match!');
-          cardList = [];
-      }
-      //Check if won
-      function winCheck() {
-       if (allCardsArray.every(isMatch)) {
-         return true;
-       }
-      }
-      //Popup message if won
-      if (winCheck() === true) {
-        setTimeout( () => {
-          window.alert('You won. Mum must be so proud.');
-        }, 0);
-      }
-    });
-  });
-};
-
-onClick();
-
-restart.addEventListener('click', () => {
-  const popup = confirm('Would you like to play again?')
-  if (popup == true) {
-  deck.innerHTML = '';
-  init();
-  setTimeout(onClick(), 100);;
-  }
-});
+initialize();
