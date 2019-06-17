@@ -4,6 +4,8 @@
 
 const cards = [];
 const deck = document.querySelector('.deck');
+const restartButton = document.querySelector('.restart');
+let stars = document.querySelector('.stars');
 let openCards = [];
 let moveCounter = 0;
 const cardNames = [ 'fa-diamond',
@@ -52,8 +54,18 @@ const listenerFunction = () => {
 
   // Increment move counter
   if (openCards.length < 2) {
-    moveCounter += 0.50;
+    moveCounter += 1;
+    document.querySelector('.moves').innerText = Math.round(moveCounter.toString());
   }
+
+  //Take stars away when playing badly
+  if (moveCounter === 18) {
+    stars.removeChild(stars.lastElementChild);
+  } else if (moveCounter === 24) {
+    stars.removeChild(stars.lastElementChild);
+  } else if (moveCounter ===40) {
+    stars.removeChild(stars.lastElementChild);
+  };
 
   //Flip card
   console.log(moveCounter);
@@ -81,11 +93,17 @@ const listenerFunction = () => {
       openCards = [];
   };
   //Popup message if won
-  if (winCheck() === true) {
+  if (winCheck() === true && moveCounter < 18) {
     setTimeout( () => {
-      window.alert(`You won. Mum must be so proud of your mighty ${moveCounter} moves.`);
+      window.alert(`You won. Mum must be so proud of your mighty ${Math.round(moveCounter)} moves.`);
     }, 1);
-  }
+  } else if (winCheck() === true && moveCounter < 24) {
+    window.alert(`You won. Mum is probably okay with your meagre ${Math.round(moveCounter)} moves.`);
+  } else if (winCheck() === true && moveCounter < 40) {
+    window.alert(`You won. Mum would be disappointed with your ${Math.round(moveCounter)} moves.`);
+  } else if (winCheck() === true && moveCounter > 40) {
+    window.alert(`You won. But a hollow victory with ${Math.round(moveCounter)} moves. Mum is ashamed.`);
+  };
 };
 
 //Create individual cards and add them to the deck
@@ -139,10 +157,29 @@ function shuffle(array) {
 *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
 */
 
-//Begin game by shuffling cards and generating deck
+//Begin game by shuffling cards and generating deck, resetting move counter
 const initialize = () => {
   shuffle(cards);
   generateDeck();
+  moveCounter = 0;
 }
 
-initialize();
+//Restart game - remove all cards then re-initialize
+const restart  = () => {
+  while (deck.firstChild) {
+    deck.removeChild(deck.firstChild);
+  };
+  initialize();
+}
+
+//Popup window when clicking restart
+restartButton.addEventListener('click', () => {
+  if (confirm("Oh, you wanna try again? Maybe you'll do better this time...")) {
+    txt = "Aight, good luck mayne!";
+    restart();
+  } else {
+    alert("Ha, knew you'd wuss out.");
+  }
+});
+
+initialize(); //GAME NO LOAD WITHOUT THIS. I M P O R T A N T   F U N C T I O N
