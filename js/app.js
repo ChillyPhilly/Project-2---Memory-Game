@@ -63,7 +63,7 @@ const listenerFunction = () => {
       child.classList.add('notMatched');
     });
     setTimeout( () => {openCards.forEach( (child) => {
-      child.classList.remove('show', 'open');
+      child.classList.remove('show', 'open', 'notMatched');
     })
     openCards = [];
     unmatchedDisplayStatus = 0;

@@ -83,7 +83,7 @@ h1 {
 }
 
 .deck .card.notMatched {
-  border-color: red;
+  box-shadow: 0 0 6px 6px red;
 }
 
 /*
