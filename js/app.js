@@ -1,13 +1,10 @@
-/*
- * Create a list that holds all of your cards
- */
-
 const cards = [];
 const deck = document.querySelector('.deck');
 const restartButton = document.querySelector('.restart');
 let stars = document.querySelector('.stars');
+const starCheckpoints = ['21', '31', '41'] // Checkpoints at which to remove stars
 let openCards = [];
-let moveCounter = 0;
+let startDate;
 const cardNames = [ 'fa-diamond',
                'fa-paper-plane-o',
                'fa-anchor',
@@ -63,15 +60,6 @@ const listenerFunction = () => {
     incrementMoveCounter();
   }
 
-  //Take stars away when playing badly
-  if (moveCounter === 18) {
-    stars.removeChild(stars.lastElementChild);
-  } else if (moveCounter === 24) {
-    stars.removeChild(stars.lastElementChild);
-  } else if (moveCounter ===40) {
-    stars.removeChild(stars.lastElementChild);
-  };
-
   //Flip card
   console.log(moveCounter);
   if (openCards.length < 2 && !card.classList.contains('open')) {
@@ -83,9 +71,9 @@ const listenerFunction = () => {
   if (openCards.length === 2 && !openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild)) {
     setTimeout( () => {openCards.forEach( (child) => {
       child.classList.remove('show', 'open');
-    });
+    })
     openCards = [];
-  }, 1500);
+    }, 1500);
   }
 
   // Otherwise, if cards match, style as "matched" and continue showing icon:
@@ -97,19 +85,51 @@ const listenerFunction = () => {
     console.log('Match!');
       openCards = [];
   };
+
+  //Take stars away when playing badly
+  let i = starCheckpoints.indexOf(`${moveCounter}`);
+  if (i !== -1) {
+    if (i === 0) {
+      stars.childNodes[i+1].classList.add('hidden');
+    } else if (i === 1) {
+      stars.childNodes[i+2].classList.add('hidden');
+    } else if (i === 2) {
+      stars.childNodes[i+3].classList.add('hidden');
+    }
+  }
+
   //Popup message if won
-  if (winCheck() === true && moveCounter < 18) {
+  if (winCheck() === true) {
+    let hiddenStars = stars.querySelectorAll('.hidden');
+    let remainingStars = 3 - hiddenStars.length;
+    let endDate = new Date();
+    let timeTaken = Math.round(endDate.getTime() - startDate.getTime())/1000;
+    stopTimer();
     setTimeout( () => {
-      window.alert(`You won. Mum must be so proud of your mighty ${Math.round(moveCounter)} moves.`);
-    }, 1);
-  } else if (winCheck() === true && moveCounter < 24) {
-    window.alert(`You won. Mum is probably okay with your meagre ${Math.round(moveCounter)} moves.`);
-  } else if (winCheck() === true && moveCounter < 40) {
-    window.alert(`You won. Mum would be disappointed with your ${Math.round(moveCounter)} moves.`);
-  } else if (winCheck() === true && moveCounter > 40) {
-    window.alert(`You won. But a hollow victory with ${Math.round(moveCounter)} moves. Mum is ashamed.`);
+      if (moveCounter < starCheckpoints[0]) {
+        window.alert(`You won. Mum must be so proud of your mighty ${remainingStars} stars remaining. And it only took you ${timeTaken} seconds!`);
+    } else if (winCheck() === true && moveCounter < starCheckpoints[1]) {
+      window.alert(`You won. Mum is probably okay with your meagre ${remainingStars} stars remaining, even if it did take you ${timeTaken} seconds.`);
+    } else if (winCheck() === true && moveCounter < starCheckpoints[2]) {
+      window.alert(`You won. Mum would be disappointed with your ${remainingStars} stars remaining, even though you still completed it in ${timeTaken} seconds.`);
+    } else if (winCheck() === true && moveCounter > starCheckpoints[2]) {
+      window.alert(`You won. But a hollow victory with ${remainingStars} stars remaining. Especially considering it took you a whole ${timeTaken} seconds. Mum is ashamed.`);
+    };
+  }, 1);
   };
 };
+
+
+const startTimer = setInterval( () => {
+    let endDate = new Date();
+    let timeTaken = Math.round((endDate.getTime() - startDate.getTime())/1000);
+    document.querySelector('.timer').innerText = timeTaken;
+    timer = timeTaken.toString();
+  }, 1000);
+
+const stopTimer = () => {
+  clearInterval(startTimer);
+}
 
 //Create individual cards and add them to the deck
 const generateCard = (card) => {
@@ -150,7 +170,6 @@ function shuffle(array) {
   return array;
 }
 
-
 /*
 * set up the event listener for a card. If a card is clicked:
 *  - display the card's symbol (put this functionality in another function that you call from this one)
@@ -164,18 +183,30 @@ function shuffle(array) {
 
 //Begin game by shuffling cards and generating deck, resetting move counter
 const initialize = () => {
+  openCards = []
+  startDate = new Date();
   shuffle(cards);
   generateDeck();
   moveCounter = 0;
   document.querySelector('.moves').innerText = moveCounter.toString()
 }
 
-//Restart game - remove all cards then re-initialize
+//Un-hide the hidden stars
+const resetStars = () => {
+  let hiddenStars = stars.querySelectorAll('.hidden');
+  let i = 0;
+  while (i < hiddenStars.length) {
+    hiddenStars[i].classList.remove('hidden');
+    i++;
+  }
+}
+
+//Restart game - remove all cards then re-initialize and un-hide stars
 const restart  = () => {
   while (deck.firstChild) {
     deck.removeChild(deck.firstChild);
   };
-
+  resetStars();
   initialize();
 }
 
