@@ -82,6 +82,10 @@ h1 {
     font-size: 33px;
 }
 
+.deck .card.notMatched {
+  border-color: red;
+}
+
 /*
  * Styles for the Score Panel
  */

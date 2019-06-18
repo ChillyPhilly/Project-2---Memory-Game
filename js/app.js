@@ -5,7 +5,7 @@ let stars = document.querySelector('.stars');
 const starCheckpoints = ['21', '31', '41'] // Checkpoints at which to remove stars
 let openCards = [];
 let startDate;
-let timer = 0; //Necessary for functionality in checking cards are different; prevents further clicks from activating the 1500ms delay again to flip over
+let unmatchedDisplayStatus = 0; //Necessary for functionality in checking cards are different; prevents further clicks from activating the 1500ms delay again to flip over
 const cardNames = [ 'fa-diamond',
                'fa-paper-plane-o',
                'fa-anchor',
@@ -58,14 +58,17 @@ const listenerFunction = () => {
   }
 
   //Check if cards are different, then flip back over after a delay:
-  if (openCards.length === 2 && !openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild) && timer === 0) {
+  if (openCards.length === 2 && !openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild) && unmatchedDisplayStatus === 0) {
+    openCards.forEach( (child) => {
+      child.classList.add('notMatched');
+    });
     setTimeout( () => {openCards.forEach( (child) => {
       child.classList.remove('show', 'open');
     })
     openCards = [];
-    timer = 0;
+    unmatchedDisplayStatus = 0;
     }, 1500);
-    timer = 1;
+    unmatchedDisplayStatus = 1;
   }
 
   // Otherwise, if cards match, style as "matched" and continue showing icon:
