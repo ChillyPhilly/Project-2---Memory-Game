@@ -15,16 +15,6 @@ const cardNames = [ 'fa-diamond',
                'fa-bomb',
 ];
 
-//FOR TESTING PURPOSES ONLY
-//FOR TESTING PURPOSES ONLY
-const matchAll = () => {
-  for (i = 0; i < deck.children.length; i++) {
-    deck.children[i].classList.add('match');
-  }
-}
-//FOR TESTING PURPOSES ONLY
-//FOR TESTING PURPOSES ONLY
-
 //Create two of each card
 cardNames.forEach( (card) => {
   cards.push(card);
