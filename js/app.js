@@ -5,7 +5,7 @@ let stars = document.querySelector('.stars');
 const starCheckpoints = ['21', '31', '41'] // Checkpoints at which to remove stars
 let openCards = [];
 let startDate;
-let unmatchedDisplayStatus = 0; //Necessary for functionality in checking cards are different; prevents further clicks from activating the 1500ms delay again to flip over
+let unmatchedDisplayStatus = false; //Necessary for functionality in checking cards are different; prevents further clicks from activating the 1500ms delay again to flip over
 const cardNames = [ 'fa-diamond',
                'fa-paper-plane-o',
                'fa-anchor',
@@ -17,28 +17,29 @@ const cardNames = [ 'fa-diamond',
 ];
 
 //Create two of each card
-cardNames.forEach( (card) => {
+cardNames.forEach( card => {
   cards.push(card);
   cards.push(card);
 });
 
-// Check if a card has "match" class
-let isMatched = (card) => {
- return card.classList.contains('match');
-}
+const startTimer = setInterval( () => {
+    let endDate = new Date();
+    let timeTaken = Math.round((endDate.getTime() - startDate.getTime())/1000);
+    document.querySelector('.timer').innerText = timeTaken;
+    timer = timeTaken.toString();
+  }, 1000);
 
-//Check if won
-function winCheck() {
-  let deckArray = [].slice.call(deck.children);
-  if (deckArray.every(isMatched)) {
-    return true;
- }
-}
+const stopTimer = () => clearInterval(startTimer);
+
+// Check if a card has "match" class
+const isMatched = card => card.classList.contains('match');
+
+//Check if won - [].slice.call(deck) is required to make deck an array. Otherwise .every won't work
+const winCheck = () => [].slice.call(deck.children).every(isMatched)
 
 //Increment move counter function
 const incrementMoveCounter = () => {
-  moveCounter += 1;
-  document.querySelector('.moves').innerText = moveCounter.toString();
+  document.querySelector('.moves').innerText = (++moveCounter).toString();
 }
 
 //What to do when a card is clicked
@@ -51,29 +52,28 @@ const listenerFunction = () => {
   }
 
   //Flip card
-  console.log(moveCounter);
   if (openCards.length < 2 && !card.classList.contains('open')) {
-    openCards.push(event.target);
+    openCards.push(card);
     card.classList.add('show', 'open');
   }
 
   //Check if cards are different, then flip back over after a delay:
-  if (openCards.length === 2 && !openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild) && unmatchedDisplayStatus === 0) {
-    openCards.forEach( (child) => {
+  if (openCards.length === 2 && !openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild) && !unmatchedDisplayStatus) {
+    openCards.forEach( child => {
       child.classList.add('notMatched');
     });
     setTimeout( () => {openCards.forEach( (child) => {
       child.classList.remove('show', 'open', 'notMatched');
     })
     openCards = [];
-    unmatchedDisplayStatus = 0;
+    unmatchedDisplayStatus = false;
     }, 1500);
-    unmatchedDisplayStatus = 1;
+    unmatchedDisplayStatus = true;
   }
 
   // Otherwise, if cards match, style as "matched" and continue showing icon:
   else if (openCards.length === 2 && openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild)) {
-    openCards.forEach( (child) => {
+    openCards.forEach( child => {
       child.classList.add('match');
       child.classList.remove('show', 'open');
     });
@@ -98,7 +98,7 @@ const listenerFunction = () => {
     let hiddenStars = stars.querySelectorAll('.hidden');
     let remainingStars = 3 - hiddenStars.length;
     let endDate = new Date();
-    let timeTaken = Math.round(endDate.getTime() - startDate.getTime())/1000;
+    let timeTaken = Math.round((endDate - startDate)/1000);
     stopTimer();
     setTimeout( () => {
       if (moveCounter < starCheckpoints[0]) {
@@ -114,20 +114,8 @@ const listenerFunction = () => {
   };
 };
 
-
-const startTimer = setInterval( () => {
-    let endDate = new Date();
-    let timeTaken = Math.round((endDate.getTime() - startDate.getTime())/1000);
-    document.querySelector('.timer').innerText = timeTaken;
-    timer = timeTaken.toString();
-  }, 1000);
-
-const stopTimer = () => {
-  clearInterval(startTimer);
-}
-
 //Create individual cards and add them to the deck
-const generateCard = (card) => {
+const generateCard = card => {
   const newTile = document.createElement(`li`); //Create list
   const newCard = document.createElement(`i`); //Create list elements
   newTile.classList.add(`card`);
@@ -201,9 +189,10 @@ const restart  = () => {
   while (deck.firstChild) {
     deck.removeChild(deck.firstChild);
   };
+  startTimer;
   resetStars();
   initialize();
-}
+};
 
 //Popup window when clicking restart
 restartButton.addEventListener('click', () => {
