@@ -110,7 +110,7 @@ const listenerFunction = () => {
     } else if (winCheck() === true && moveCounter > starCheckpoints[2]) {
       window.alert(`You won. But a hollow victory with ${remainingStars} stars remaining. Especially considering it took you a whole ${timeTaken} seconds. Mum is ashamed.`);
     };
-  }, 1);
+  }, 500);
   };
 };
 
