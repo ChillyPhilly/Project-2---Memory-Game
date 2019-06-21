@@ -17,16 +17,6 @@ const cardNames = [ 'fa-diamond',
                'fa-bomb',
 ];
 
-//FOR TESTING PURPOSES ONLY
-//FOR TESTING PURPOSES ONLY
-const matchAll = () => {
-  for (i = 0; i < deck.children.length; i++) {
-    deck.children[i].classList.add('match');
-  }
-}
-//FOR TESTING PURPOSES ONLY
-//FOR TESTING PURPOSES ONLY
-
 //Create two of each card
 cards = cardNames.concat(cardNames);
 
@@ -247,3 +237,14 @@ const restart  = () => {
 restartButton.addEventListener('click', swalBoxRestart);
 
 initialize(); //GAME NO LOAD WITHOUT THIS. I M P O R T A N T   F U N C T I O N
+
+
+//FOR TESTING PURPOSES ONLY
+//FOR TESTING PURPOSES ONLY
+const matchAll = () => {
+  for (i = 0; i < deck.children.length; i++) {
+    deck.children[i].classList.add('match');
+  }
+}
+//FOR TESTING PURPOSES ONLY
+//FOR TESTING PURPOSES ONLY
