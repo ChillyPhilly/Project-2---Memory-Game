@@ -3,7 +3,7 @@
 ## Summary
 
 I have taken the skeleton from the Udacity repository and made it my own! Plenty of features have been added over time and I'm really proud of how it's come out in such a short amount of time.
-####***Warning***####
+#### Warning
 *This game contains unreasonable levels of sass. Please be careful!*
 
 
