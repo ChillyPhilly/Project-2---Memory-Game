@@ -1,10 +1,11 @@
-const cards = [];
+let cards = [];
 const deck = document.querySelector('.deck');
 const restartButton = document.querySelector('.restart');
 let stars = document.querySelector('.stars');
-const starCheckpoints = ['21', '31', '41'] // Checkpoints at which to remove stars
+const starCheckpoints = ['11', '16', '21'] // Checkpoints at which to remove stars
 let openCards = [];
 let startDate;
+let startTimer;
 let unmatchedDisplayStatus = false; //Necessary for functionality in checking cards are different; prevents further clicks from activating the 1500ms delay again to flip over
 const cardNames = [ 'fa-diamond',
                'fa-paper-plane-o',
@@ -16,18 +17,63 @@ const cardNames = [ 'fa-diamond',
                'fa-bomb',
 ];
 
-//Create two of each card
-cardNames.forEach( card => {
-  cards.push(card);
-  cards.push(card);
-});
+//FOR TESTING PURPOSES ONLY
+//FOR TESTING PURPOSES ONLY
+const matchAll = () => {
+  for (i = 0; i < deck.children.length; i++) {
+    deck.children[i].classList.add('match');
+  }
+}
+//FOR TESTING PURPOSES ONLY
+//FOR TESTING PURPOSES ONLY
 
-const startTimer = setInterval( () => {
+//Create two of each card
+cards = cardNames.concat(cardNames);
+
+const beginTiming = () => {
+  startTimer = setInterval( () => {
     let endDate = new Date();
     let timeTaken = Math.round((endDate.getTime() - startDate.getTime())/1000);
     document.querySelector('.timer').innerText = timeTaken;
     timer = timeTaken.toString();
   }, 1000);
+};
+
+//Custom popup window for win
+const swalBoxWin = (message) => {
+  Swal.fire({
+  title: `You won. Maybe you feel like playing another.`,
+  text: `${message}`,
+  type: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes, your sass cannot discourage me!',
+  cancelButtonText: `I am so ashamed of my ${moveCounter} moves that I must give up.`
+}).then((result) => {
+  if (result.value) {
+      restart();
+  }
+})
+};
+
+//Custom popup window for restart
+const swalBoxRestart = () => {
+  Swal.fire({
+  title: `Decided to try again have we?`,
+  text: `Oh, you wanna try again? Maybe you'll do better this time...`,
+  type: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes, your sass cannot discourage me!',
+  cancelButtonText: `No, I do not believe I can do better and thus give up.`
+}).then((result) => {
+  if (result.value) {
+      restart();
+  }
+})
+};
 
 const stopTimer = () => clearInterval(startTimer);
 
@@ -46,13 +92,8 @@ const incrementMoveCounter = () => {
 const listenerFunction = () => {
   let card = event.target;
 
-  // Increment move counter
-  if (openCards.length < 2) {
-    incrementMoveCounter();
-  }
-
   //Flip card
-  if (openCards.length < 2 && !card.classList.contains('open')) {
+  if (openCards.length < 2) {
     openCards.push(card);
     card.classList.add('show', 'open');
   }
@@ -60,25 +101,26 @@ const listenerFunction = () => {
   //Check if cards are different, then flip back over after a delay:
   if (openCards.length === 2 && !openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild) && !unmatchedDisplayStatus) {
     openCards.forEach( child => {
-      child.classList.add('notMatched');
+      child.classList.add('notMatched', 'animated', 'headShake');
     });
     setTimeout( () => {openCards.forEach( (child) => {
-      child.classList.remove('show', 'open', 'notMatched');
+      child.classList.remove('show', 'open', 'notMatched', 'animated', 'headShake');
     })
     openCards = [];
     unmatchedDisplayStatus = false;
     }, 1500);
     unmatchedDisplayStatus = true;
+    incrementMoveCounter()
   }
 
   // Otherwise, if cards match, style as "matched" and continue showing icon:
   else if (openCards.length === 2 && openCards[0].firstElementChild.isEqualNode(openCards[1].firstElementChild)) {
     openCards.forEach( child => {
-      child.classList.add('match');
+      child.classList.add('match', 'animated', 'bounce');
       child.classList.remove('show', 'open');
     });
-    console.log('Match!');
-      openCards = [];
+    openCards = [];
+    incrementMoveCounter();
   };
 
   //Take stars away when playing badly
@@ -95,20 +137,21 @@ const listenerFunction = () => {
 
   //Popup message if won
   if (winCheck() === true) {
+    deck.classList.add('animated');
     let hiddenStars = stars.querySelectorAll('.hidden');
     let remainingStars = 3 - hiddenStars.length;
-    let endDate = new Date();
-    let timeTaken = Math.round((endDate - startDate)/1000);
+    let finalDate = new Date();
+    let finalTime = Math.round((finalDate - startDate)/1000);
     stopTimer();
     setTimeout( () => {
       if (moveCounter < starCheckpoints[0]) {
-        window.alert(`You won. Mum must be so proud of your mighty ${remainingStars} stars remaining. And it only took you ${timeTaken} seconds!`);
+        swalBoxWin(`Mum must be so proud of your mighty ${remainingStars} stars remaining. And it only took you ${finalTime} seconds!`);
     } else if (winCheck() === true && moveCounter < starCheckpoints[1]) {
-      window.alert(`You won. Mum is probably okay with your meagre ${remainingStars} stars remaining, even if it did take you ${timeTaken} seconds.`);
+      swalBoxWin(`Mum is probably okay with your meagre ${remainingStars} stars remaining, even if it did take you ${finalTime} seconds.`);
     } else if (winCheck() === true && moveCounter < starCheckpoints[2]) {
-      window.alert(`You won. Mum would be disappointed with your ${remainingStars} stars remaining, even though you still completed it in ${timeTaken} seconds.`);
+      swalBoxWin(`Mum would be disappointed with your ${remainingStars} stars remaining, even though you still completed it in ${finalTime} seconds.`);
     } else if (winCheck() === true && moveCounter > starCheckpoints[2]) {
-      window.alert(`You won. But a hollow victory with ${remainingStars} stars remaining. Especially considering it took you a whole ${timeTaken} seconds. Mum is ashamed.`);
+      swalBoxWin(`But a hollow victory with ${remainingStars} stars remaining. Especially considering it took you a whole ${finalTime} seconds. Mum is ashamed.`);
     };
   }, 500);
   };
@@ -171,6 +214,7 @@ const initialize = () => {
   shuffle(cards);
   generateDeck();
   moveCounter = 0;
+  beginTiming();
   document.querySelector('.moves').innerText = moveCounter.toString()
 }
 
@@ -186,22 +230,20 @@ const resetStars = () => {
 
 //Restart game - remove all cards then re-initialize and un-hide stars
 const restart  = () => {
+  deck.classList.add('bounceOutLeft');
   while (deck.firstChild) {
     deck.removeChild(deck.firstChild);
   };
-  startTimer;
-  resetStars();
-  initialize();
+  setTimeout( () => {
+    document.querySelector('.timer').innerText = 0; // Put timer to 0
+    resetStars();
+    initialize();
+    deck.classList.remove('bounceOutLeft');
+    deck.classList.add('bounceInDown');
+  }, 500);
 };
 
 //Popup window when clicking restart
-restartButton.addEventListener('click', () => {
-  if (confirm("Oh, you wanna try again? Maybe you'll do better this time...")) {
-    txt = "Aight, good luck mayne!";
-    restart();
-  } else {
-    alert("Ha, knew you'd wuss out.");
-  }
-});
+restartButton.addEventListener('click', swalBoxRestart);
 
 initialize(); //GAME NO LOAD WITHOUT THIS. I M P O R T A N T   F U N C T I O N
